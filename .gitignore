@@ -21,7 +21,7 @@ wheels/
 *.egg
 MANIFEST
 
-# Work-specific tools (keep personal projects lightweight)
+# spacetime specific files (https://github.com/SullivanXiong/spacetime)
 .envrc
 flake.nix
 flake.lock
