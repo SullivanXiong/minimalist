@@ -1,0 +1,78 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+/media
+/staticfiles
+/static
+
+# Nix
+result
+result-*
+.devenv/
+.direnv/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# uv
+.uv/
+uv.lock
+
+# Docker
+*.pid
+
+# Environment variables
+# Ignore .env files but NOT .env.example
+**/.env
+!**/.env.example
+
+# Temporary files
+*.tmp
+*.bak
+*.orig
+
+

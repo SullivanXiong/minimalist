@@ -1,0 +1,69 @@
+# spacetime project configuration for minimalist
+# This file is automatically loaded when entering the project directory
+
+# Project identification
+export PROJECT_NAME="minimalist"
+export PROJECT_TYPE="django-wxpython"
+
+# Project paths
+export PROJECT_ROOT="$(pwd)"
+export SERVER_DIR="$PROJECT_ROOT/server"
+export CLIENT_DIR="$PROJECT_ROOT/client"
+
+# Database configuration
+export DATABASE_URL="postgresql://todouser:todopass@localhost:5432/todoapp"
+
+# Development URLs
+export DJANGO_DEV_URL="http://localhost:8000"
+export WEBSOCKET_URL="ws://localhost:8000/ws/todos/"
+
+# Python environment
+export PYTHONPATH="$SERVER_DIR:$CLIENT_DIR:$PYTHONPATH"
+
+# Quick navigation aliases (available in this project)
+alias server='cd $SERVER_DIR'
+alias client='cd $CLIENT_DIR'
+alias supyx='cd $PROJECT_ROOT/../supyx'
+
+# Project-specific functions
+start-dev() {
+    echo "🚀 Starting minimalist development environment..."
+    echo ""
+    echo "1️⃣  Starting services (PostgreSQL & Redis)..."
+    make services-up
+    
+    echo ""
+    echo "2️⃣  Services started. Run these in separate terminals:"
+    echo "   Terminal 1: make dev-server"
+    echo "   Terminal 2: make dev-client"
+}
+
+stop-dev() {
+    echo "🛑 Stopping minimalist development environment..."
+    make services-down
+}
+
+reset-db() {
+    echo "🔄 Resetting database..."
+    make services-down
+    docker volume rm minimalist_postgres_data 2>/dev/null || true
+    make services-up
+    sleep 5
+    make migrate
+    echo "✅ Database reset complete"
+}
+
+# Display project info on load
+echo ""
+echo "📦 Project: $PROJECT_NAME"
+echo "🏗️  Type: $PROJECT_TYPE"
+echo "📍 Root: $PROJECT_ROOT"
+echo ""
+echo "💡 Quick commands:"
+echo "   start-dev  - Start all services"
+echo "   stop-dev   - Stop all services"
+echo "   reset-db   - Reset database"
+echo "   server     - Go to server directory"
+echo "   client     - Go to client directory"
+echo ""
+

@@ -1,0 +1,27 @@
+{
+  "snapshot": "snapshot-20250819-9a28035b-bd5b-4fe4-8c70-89afdcc8c4ea",
+  "install": "./env-shell make setup-server setup-client",
+  "terminals": [
+    {
+      "name": "Start Services",
+      "command": "./env-shell make services-up",
+      "description": "Start PostgreSQL and Redis with Docker Compose"
+    },
+    {
+      "name": "Setup DB",
+      "command": "./env-shell make migrate",
+      "description": "Run Django database migrations"
+    },
+    {
+      "name": "Dev Server",
+      "command": "./env-shell make dev-server",
+      "description": "Start Django development server with Daphne"
+    },
+    {
+      "name": "Dev Client",
+      "command": "./env-shell make dev-client",
+      "description": "Start wxPython client application"
+    }
+  ]
+}
+

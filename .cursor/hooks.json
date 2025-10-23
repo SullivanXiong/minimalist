@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeMCPExecution": [
+      {
+        "command": ".cursor/hooks/disable-prod-computer-use.sh"
+      }
+    ]
+  }
+}
+

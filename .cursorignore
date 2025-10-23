@@ -1,0 +1,34 @@
+# Cursor IDE ignore file
+# This controls what Cursor can see and index
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Node modules (if any)
+node_modules/
+
+# Large directories
+.git/
+
+# Ignore .env files but ALLOW .env.example
+.env
+!.env.example
+**/.env
+!**/.env.example
+
+
+
+

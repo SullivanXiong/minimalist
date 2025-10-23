@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: todoapp_postgres
+    environment:
+      POSTGRES_DB: todoapp
+      POSTGRES_USER: todouser
+      POSTGRES_PASSWORD: todopass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U todouser -d todoapp"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: todoapp_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: todoapp_server
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - DATABASE_NAME=todoapp
+      - DATABASE_USER=todouser
+      - DATABASE_PASSWORD=todopass
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - REDIS_URL=redis://redis:6379/0
+      - DEBUG=False
+      - ALLOWED_HOSTS=localhost,127.0.0.1
+    volumes:
+      - ./server:/app/server
+
+volumes:
+  postgres_data:
+  redis_data:
+
+
+
+
+
