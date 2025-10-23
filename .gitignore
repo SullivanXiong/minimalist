@@ -21,6 +21,16 @@ wheels/
 *.egg
 MANIFEST
 
+# Work-specific tools (keep personal projects lightweight)
+.envrc
+flake.nix
+flake.lock
+devenv.nix
+devenv.lock
+.devenv/
+env-shell
+.cursor/
+
 # Virtual environments
 .venv
 env/
