@@ -3,14 +3,12 @@
 {
   # https://devenv.sh/basics/
   env.GREET = "wxPython Django Todo App";
-  env.PROJECT_NAME = "minimalist";
 
   # https://devenv.sh/packages/
   packages = with pkgs; [
     git
     gnumake
     uv
-    jq
   ];
 
   # https://devenv.sh/languages/
@@ -43,16 +41,6 @@
   '';
 
   enterShell = ''
-    # Load spacetime configuration if available
-    if [ -f "$HOME/.config/spacetime/spacetime.rc" ]; then
-      source "$HOME/.config/spacetime/spacetime.rc"
-    fi
-    
-    # Load project-specific spacetime config
-    if [ -f "$PWD/.spacetime" ]; then
-      source "$PWD/.spacetime"
-    fi
-    
     hello
   '';
 
