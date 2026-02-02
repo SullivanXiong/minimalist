@@ -79,8 +79,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.getenv('DATABASE_NAME', 'todoapp'),
-        'USER': os.getenv('DATABASE_USER', 'todouser'),
-        'PASSWORD': os.getenv('DATABASE_PASSWORD', 'todopass'),
+        'USER': os.getenv('DATABASE_USER') or os.getenv('USER'),  # devenv uses system user
+        'PASSWORD': os.getenv('DATABASE_PASSWORD', ''),
         'HOST': os.getenv('DATABASE_HOST', 'localhost'),
         'PORT': os.getenv('DATABASE_PORT', '5432'),
     }

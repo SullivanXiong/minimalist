@@ -1,4 +1,4 @@
-.PHONY: setup setup-server setup-client dev-server dev-client migrate test clean
+.PHONY: setup setup-server setup-client dev-server dev-client migrate test clean format
 
 # Initial project setup
 setup: setup-server setup-client
@@ -44,6 +44,10 @@ test:
 	cd server && uv run python manage.py test
 	cd client && uv run python -m pytest
 
+# Format code with ruff
+format:
+	./format_code.sh
+
 # Clean generated files
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
@@ -53,21 +57,9 @@ clean:
 	find . -type d -name ".pytest_cache" -exec rm -rf {} + 2>/dev/null || true
 	@echo "Cleanup complete!"
 
-# Start PostgreSQL and Redis (using docker-compose)
-services-up:
-	docker-compose up -d
-
-# Stop services
-services-down:
-	docker-compose down
-
-# View server logs
-logs-server:
-	cd server && uv run python manage.py runserver
-
 # Django shell
 shell:
 	cd server && uv run python manage.py shell
 
-
-
+# Note: PostgreSQL and Redis are managed by devenv
+# Start services with: devenv up

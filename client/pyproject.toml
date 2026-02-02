@@ -6,9 +6,8 @@ requires-python = ">=3.11"
 dependencies = [
     "wxPython>=4.2.0",
     "websocket-client>=1.8.0",
-    "supyx>=0.1.0",
+    "supyx>=0.2.0",
 ]
 
-# For local development, uncomment:
-# [tool.uv.sources]
-# supyx = { path = "../../supyx", editable = true }
+[tool.uv.sources]
+supyx = { path = "../../supyx", editable = true }
