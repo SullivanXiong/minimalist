@@ -34,6 +34,9 @@
             pkgs-unstable = import inputs.nixpkgs-unstable { system = pkgs.stdenv.system; };
             uv = pkgs-unstable.uv;
             python = pkgs.python311;
+            # Override with POSTGRES_PORT env var (default: 5432)
+            postgresPortEnv = builtins.getEnv "POSTGRES_PORT";
+            effectivePostgresPort = if postgresPortEnv == "" then 5432 else builtins.fromJSON postgresPortEnv;
           in
           {
             formatter = pkgs.nixpkgs-fmt;
@@ -63,11 +66,11 @@
               languages.python.uv.package = uv;
               languages.python.venv.enable = true;
 
-              # PostgreSQL service
+              # PostgreSQL service (override port: POSTGRES_PORT=5433 direnv reload)
               services.postgres.enable = true;
               services.postgres.package = pkgs.postgresql_15;
               services.postgres.listen_addresses = "localhost";
-              services.postgres.port = 5432;
+              services.postgres.port = effectivePostgresPort;
               services.postgres.initialDatabases = [
                 { name = "todoapp"; }
               ];
@@ -93,16 +96,19 @@
                 echo "============================================"
                 echo ""
                 echo "Services (start with 'devenv up'):"
-                echo "  PostgreSQL: localhost:5432 (database: todoapp)"
+                echo "  PostgreSQL: localhost:${toString effectivePostgresPort} (database: todoapp)"
                 echo "  Redis:      localhost:6379"
                 echo ""
                 echo "Commands:"
-                echo "  make setup-server  - Install server dependencies"
-                echo "  make setup-client  - Install client dependencies"
-                echo "  make dev-server    - Run Django server"
-                echo "  make dev-client    - Run wxPython client"
-                echo "  make migrate       - Run database migrations"
-                echo "  ./format_code.sh   - Format code with ruff"
+                echo "  make setup-server              - Install server dependencies"
+                echo "  make setup-client              - Install client dependencies"
+                echo "  make dev-server                - Run Django server (port 8000)"
+                echo "  make dev-server SERVER_PORT=X  - Run on custom port"
+                echo "  make dev-client                - Run wxPython client"
+                echo "  make migrate                   - Run database migrations"
+                echo "  ./format_code.sh               - Format code with ruff"
+                echo ""
+                echo "To change PostgreSQL port: POSTGRES_PORT=5433 direnv reload"
                 echo ""
                 echo "Python: $(python --version)"
                 echo "uv: $(uv --version)"
