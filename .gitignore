@@ -23,6 +23,7 @@ MANIFEST
 
 # devenv state (runtime files, not config)
 .devenv/
+.devenv.local
 devenv.lock
 env-shell
 

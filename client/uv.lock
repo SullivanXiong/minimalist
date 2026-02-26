@@ -100,12 +100,15 @@ wheels = [
 
 [[package]]
 name = "supyx"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "../../supyx" }
 
 [package.metadata]
-requires-dist = [{ name = "wxpython", marker = "extra == 'wx'", specifier = ">=4.2.0" }]
-provides-extras = ["wx"]
+requires-dist = [
+    { name = "textual", marker = "extra == 'textual'", specifier = ">=0.87.0" },
+    { name = "wxpython", marker = "extra == 'wx'", specifier = ">=4.2.0" },
+]
+provides-extras = ["wx", "textual"]
 
 [[package]]
 name = "websocket-client"

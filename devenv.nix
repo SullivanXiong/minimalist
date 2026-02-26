@@ -2,7 +2,7 @@
 
 {
   # https://devenv.sh/basics/
-  env.GREET = "wxPython Django Todo App";
+  env.GREET = "Minimalist Project Management";
 
   # https://devenv.sh/packages/
   packages = with pkgs; [
@@ -23,7 +23,7 @@
     enable = true;
     package = pkgs.postgresql_15;
     initialDatabases = [
-      { name = "todoapp"; }
+      { name = "minimalist"; }
     ];
     listen_addresses = "127.0.0.1";
     port = 5432;

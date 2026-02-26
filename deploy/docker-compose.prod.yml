@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  server:
+    mem_limit: 2g
+
+  postgres:
+    mem_limit: 4g
+    command: >
+      postgres
+      -c shared_buffers=1GB
+      -c work_mem=16MB
+      -c effective_cache_size=3GB
+      -c maintenance_work_mem=256MB
+      -c max_connections=100
+
+  redis:
+    mem_limit: 512m
+    command: >
+      redis-server
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --save 60 1000
+
+  caddy:
+    mem_limit: 256m
+    volumes:
+      - ./Caddyfile.prod:/etc/caddy/Caddyfile:ro
