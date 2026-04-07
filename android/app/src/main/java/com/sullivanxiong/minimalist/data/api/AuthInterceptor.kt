@@ -7,11 +7,11 @@ import okhttp3.Response
 import javax.inject.Inject
 
 class AuthInterceptor @Inject constructor(
-    private val authRepository: AuthRepository,
+    private val authRepository: dagger.Lazy<AuthRepository>,
 ) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
-        val token = runBlocking { authRepository.getAccessToken() }
+        val token = authRepository.get().getAccessTokenSync()
         val request = if (token != null) {
             chain.request().newBuilder()
                 .header("Authorization", "Bearer $token")
@@ -19,6 +19,25 @@ class AuthInterceptor @Inject constructor(
         } else {
             chain.request()
         }
-        return chain.proceed(request)
+
+        val response = chain.proceed(request)
+
+        if (response.code == 401) {
+            response.close()
+            val refreshed = runBlocking { authRepository.get().refreshToken() }
+            if (refreshed) {
+                val newToken = authRepository.get().getAccessTokenSync()
+                val retryRequest = if (newToken != null) {
+                    chain.request().newBuilder()
+                        .header("Authorization", "Bearer $newToken")
+                        .build()
+                } else {
+                    chain.request()
+                }
+                return chain.proceed(retryRequest)
+            }
+        }
+
+        return response
     }
 }

@@ -17,7 +17,9 @@ android {
         versionCode = 1
         versionName = "0.1.0"
 
-        buildConfigField("String", "BASE_URL", "\"https://minimalist.example.com\"")
+        // Set MINIMALIST_BASE_URL in local.properties for production builds
+        val baseUrl = project.findProperty("MINIMALIST_BASE_URL") as String? ?: "https://minimalist.example.com"
+        buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
     }
 
     buildTypes {
@@ -74,10 +76,8 @@ dependencies {
     implementation(libs.moshi)
     ksp(libs.moshi.codegen)
 
-    // Room
-    implementation(libs.room.runtime)
-    implementation(libs.room.ktx)
-    ksp(libs.room.compiler)
+    // AppCompat (required for Theme.AppCompat.DayNight.NoActionBar in themes.xml)
+    implementation(libs.appcompat)
 
     // DataStore
     implementation(libs.datastore)

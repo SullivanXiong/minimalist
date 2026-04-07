@@ -10,13 +10,19 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+sealed interface AuthCheckState {
+    data object Loading : AuthCheckState
+    data object Authenticated : AuthCheckState
+    data object Unauthenticated : AuthCheckState
+}
+
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository,
 ) : ViewModel() {
 
-    private val _isLoggedIn = MutableStateFlow(false)
-    val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
+    private val _authState = MutableStateFlow<AuthCheckState>(AuthCheckState.Loading)
+    val authState: StateFlow<AuthCheckState> = _authState.asStateFlow()
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
@@ -26,7 +32,8 @@ class LoginViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            _isLoggedIn.value = authRepository.isLoggedIn()
+            val loggedIn = authRepository.isLoggedIn()
+            _authState.value = if (loggedIn) AuthCheckState.Authenticated else AuthCheckState.Unauthenticated
         }
     }
 
@@ -37,7 +44,7 @@ class LoginViewModel @Inject constructor(
             val result = authRepository.login(username, password)
             _isLoading.value = false
             result.fold(
-                onSuccess = { _isLoggedIn.value = true },
+                onSuccess = { _authState.value = AuthCheckState.Authenticated },
                 onFailure = { _error.value = it.message },
             )
         }

@@ -5,7 +5,6 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.sullivanxiong.minimalist.BuildConfig
 import com.sullivanxiong.minimalist.data.api.AuthInterceptor
 import com.sullivanxiong.minimalist.data.api.MinimalistApi
@@ -19,6 +18,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import javax.inject.Named
 import javax.inject.Singleton
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
@@ -30,7 +30,6 @@ object AppModule {
     @Provides
     @Singleton
     fun provideMoshi(): Moshi = Moshi.Builder()
-        .addLast(KotlinJsonAdapterFactory())
         .build()
 
     @Provides
@@ -41,7 +40,7 @@ object AppModule {
             .addInterceptor(
                 HttpLoggingInterceptor().apply {
                     level = if (BuildConfig.DEBUG)
-                        HttpLoggingInterceptor.Level.BODY
+                        HttpLoggingInterceptor.Level.HEADERS
                     else
                         HttpLoggingInterceptor.Level.NONE
                 }
@@ -65,6 +64,14 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideWebSocketClient(okHttp: OkHttpClient, moshi: Moshi): WebSocketClient =
-        WebSocketClient(okHttp, moshi)
+    @Named("baseUrl")
+    fun provideBaseUrl(): String = BuildConfig.BASE_URL
+
+    @Provides
+    @Singleton
+    fun provideWebSocketClient(
+        okHttp: OkHttpClient,
+        moshi: Moshi,
+        @Named("baseUrl") baseUrl: String,
+    ): WebSocketClient = WebSocketClient(okHttp, moshi, baseUrl)
 }

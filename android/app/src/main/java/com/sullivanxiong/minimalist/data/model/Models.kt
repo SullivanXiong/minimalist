@@ -1,5 +1,6 @@
 package com.sullivanxiong.minimalist.data.model
 
+import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
@@ -11,6 +12,8 @@ data class Workspace(
     val issue_counter: Int,
     val description: String = "",
     val icon: String = "",
+    @Json(name = "created_at") val created_at: String? = null,
+    @Json(name = "updated_at") val updated_at: String? = null,
 )
 
 @JsonClass(generateAdapter = true)
@@ -24,6 +27,8 @@ data class Project(
     val color: String = "#6B7280",
     val sort_order: Double = 0.0,
     val statuses: List<Status> = emptyList(),
+    @Json(name = "created_at") val created_at: String? = null,
+    @Json(name = "updated_at") val updated_at: String? = null,
 )
 
 @JsonClass(generateAdapter = true)
@@ -35,6 +40,7 @@ data class Status(
     val color: String = "#6B7280",
     val sort_order: Double = 0.0,
     val is_default: Boolean = false,
+    @Json(name = "created_at") val created_at: String? = null,
 )
 
 @JsonClass(generateAdapter = true)
@@ -44,6 +50,7 @@ data class Label(
     val name: String,
     val color: String = "#6B7280",
     val description: String = "",
+    @Json(name = "created_at") val created_at: String? = null,
 )
 
 @JsonClass(generateAdapter = true)
@@ -64,6 +71,10 @@ data class Issue(
     val sort_order: Double = 0.0,
     val sub_issue_count: Int = 0,
     val sub_issue_completed: Int = 0,
+    @Json(name = "created_at") val created_at: String? = null,
+    @Json(name = "updated_at") val updated_at: String? = null,
+    @Json(name = "completed_at") val completed_at: String? = null,
+    @Json(name = "cancelled_at") val cancelled_at: String? = null,
 )
 
 @JsonClass(generateAdapter = true)
@@ -98,4 +109,7 @@ data class IssueCreateRequest(
     val priority: Int = 0,
     val status_id: String? = null,
     val label_ids: List<String> = emptyList(),
+    val estimate: Int? = null,
+    @Json(name = "parent_id") val parent_id: String? = null,
+    @Json(name = "sort_order") val sort_order: Double = 0.0,
 )
