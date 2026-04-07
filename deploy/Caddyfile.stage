@@ -1,0 +1,13 @@
+minimalist-stage.example.com {
+    reverse_proxy server:8000
+    encode gzip
+    log {
+        output file /data/access.log
+        format filter {
+            wrap console
+            fields {
+                request>uri regexp "token=[^&\\s]*" "token=REDACTED"
+            }
+        }
+    }
+}

@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  server:
+    image: ghcr.io/sullivanxiong/minimalist-server:${TAG:-latest}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - DJANGO_ENV=${DJANGO_ENV:-production}
+      - DATABASE_NAME=minimalist
+      - DATABASE_USER=minimalist
+      - DATABASE_PASSWORD=${DB_PASSWORD:?DB_PASSWORD required}
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=${SECRET_KEY:?SECRET_KEY required}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost}
+      - AUTH_REQUIRED=True
+    networks:
+      - minimalist
+
+  postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: minimalist
+      POSTGRES_USER: minimalist
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD required}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U minimalist -d minimalist"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - minimalist
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - minimalist
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - server
+    networks:
+      - minimalist
+
+volumes:
+  postgres_data:
+  redis_data:
+  caddy_data:
+  caddy_config:
+
+networks:
+  minimalist:
+    driver: bridge

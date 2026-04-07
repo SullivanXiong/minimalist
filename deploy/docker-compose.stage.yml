@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  server:
+    mem_limit: 512m
+    environment:
+      - DJANGO_ENV=staging
+
+  postgres:
+    mem_limit: 1g
+    command: >
+      postgres
+      -c shared_buffers=256MB
+      -c work_mem=4MB
+      -c effective_cache_size=1GB
+      -c maintenance_work_mem=64MB
+      -c max_connections=20
+
+  redis:
+    mem_limit: 192m
+    command: >
+      redis-server
+      --maxmemory 128mb
+      --maxmemory-policy allkeys-lru
+      --save 60 1000
+
+  caddy:
+    mem_limit: 128m
+    volumes:
+      - ./Caddyfile.stage:/etc/caddy/Caddyfile:ro

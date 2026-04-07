@@ -1,5 +1,5 @@
 {
-  description = "Minimalist Todo App - wxPython + Django";
+  description = "Minimalist - Linear-inspired project management tool";
 
   inputs = {
     devenv-root = {
@@ -34,6 +34,24 @@
             pkgs-unstable = import inputs.nixpkgs-unstable { system = pkgs.stdenv.system; };
             uv = pkgs-unstable.uv;
             python = pkgs.python311;
+            # Port configuration: reads from .devenv.local if it exists, then env vars, then defaults
+            # Create .devenv.local with: echo '{"postgres_port":5433,"server_port":8080}' > .devenv.local
+            localConfig = let
+              configPath = builtins.getEnv "PWD" + "/.devenv.local";
+              configExists = builtins.pathExists configPath;
+              config = if configExists then builtins.fromJSON (builtins.readFile configPath) else {};
+            in config;
+
+            # Priority: env var > .devenv.local > default
+            postgresPortEnv = builtins.getEnv "POSTGRES_PORT";
+            effectivePostgresPort =
+              if postgresPortEnv != "" then builtins.fromJSON postgresPortEnv
+              else localConfig.postgres_port or 5432;
+
+            serverPortEnv = builtins.getEnv "SERVER_PORT";
+            effectiveServerPort =
+              if serverPortEnv != "" then builtins.fromJSON serverPortEnv
+              else localConfig.server_port or 8000;
           in
           {
             formatter = pkgs.nixpkgs-fmt;
@@ -63,18 +81,22 @@
               languages.python.uv.package = uv;
               languages.python.venv.enable = true;
 
-              # PostgreSQL service
+              # PostgreSQL service (override port: POSTGRES_PORT=5433 direnv reload)
               services.postgres.enable = true;
               services.postgres.package = pkgs.postgresql_15;
               services.postgres.listen_addresses = "localhost";
-              services.postgres.port = 5432;
+              services.postgres.port = effectivePostgresPort;
               services.postgres.initialDatabases = [
-                { name = "todoapp"; }
+                { name = "minimalist"; }
               ];
 
               # Redis service
               services.redis.enable = true;
               services.redis.port = 6379;
+
+              # Export ports as environment variables (Django/client will read these)
+              env.DATABASE_PORT = toString effectivePostgresPort;
+              env.SERVER_PORT = toString effectiveServerPort;
 
               # Git hooks (pre-commit)
               git-hooks.hooks = {
@@ -89,20 +111,24 @@
 
               enterShell = ''
                 echo ""
-                echo "Minimalist Todo App Development Environment"
+                echo "Minimalist Development Environment"
                 echo "============================================"
                 echo ""
                 echo "Services (start with 'devenv up'):"
-                echo "  PostgreSQL: localhost:5432 (database: todoapp)"
+                echo "  PostgreSQL: localhost:${toString effectivePostgresPort} (database: minimalist)"
                 echo "  Redis:      localhost:6379"
                 echo ""
                 echo "Commands:"
-                echo "  make setup-server  - Install server dependencies"
-                echo "  make setup-client  - Install client dependencies"
-                echo "  make dev-server    - Run Django server"
-                echo "  make dev-client    - Run wxPython client"
-                echo "  make migrate       - Run database migrations"
-                echo "  ./format_code.sh   - Format code with ruff"
+                echo "  make setup-server              - Install server dependencies"
+                echo "  make setup-client              - Install client dependencies"
+                echo "  make dev-server                - Run Django server (port ${toString effectiveServerPort})"
+                echo "  make dev-client                - Run wxPython client"
+                echo "  make migrate                   - Run database migrations"
+                echo "  ./format_code.sh               - Format code with ruff"
+                echo ""
+                echo "To change ports:"
+                echo "  make set-ports POSTGRES_PORT=5433 SERVER_PORT=8080"
+                echo "  direnv reload  # Run in each terminal"
                 echo ""
                 echo "Python: $(python --version)"
                 echo "uv: $(uv --version)"

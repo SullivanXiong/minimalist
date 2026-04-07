@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install server dependencies
+        run: cd server && uv sync
+
+      - name: Ruff check
+        run: cd server && uv run ruff check .
+
+      - name: Ruff format check
+        run: cd server && uv run ruff format --check .
+
+  test-server:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: minimalist
+          POSTGRES_USER: minimalist
+          POSTGRES_PASSWORD: testpass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install server dependencies
+        run: cd server && uv sync
+
+      - name: Run migrations
+        env:
+          DATABASE_NAME: minimalist
+          DATABASE_USER: minimalist
+          DATABASE_PASSWORD: testpass
+          DATABASE_HOST: localhost
+          DATABASE_PORT: "5432"
+          REDIS_URL: redis://localhost:6379/0
+        run: cd server && uv run python manage.py migrate
+
+      - name: Run server tests
+        env:
+          DATABASE_NAME: minimalist
+          DATABASE_USER: minimalist
+          DATABASE_PASSWORD: testpass
+          DATABASE_HOST: localhost
+          DATABASE_PORT: "5432"
+          REDIS_URL: redis://localhost:6379/0
+        run: cd server && uv run python manage.py test

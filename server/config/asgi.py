@@ -1,5 +1,5 @@
 """
-ASGI config for minimalist todo app.
+ASGI config for minimalist project management app.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/5.1/howto/deployment/asgi/
 
 import os
 
-from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.security.websocket import AllowedHostsOriginValidator
 from django.core.asgi import get_asgi_application
@@ -20,19 +19,14 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 # is populated before importing code that may import ORM models.
 django_asgi_app = get_asgi_application()
 
-from todos.routing import websocket_urlpatterns
+from accounts.middleware import JWTAuthMiddleware
+from projects.routing import websocket_urlpatterns as project_ws
 
 application = ProtocolTypeRouter({
     "http": django_asgi_app,
     "websocket": AllowedHostsOriginValidator(
-        AuthMiddlewareStack(
-            URLRouter(
-                websocket_urlpatterns
-            )
+        JWTAuthMiddleware(
+            URLRouter(project_ws)
         )
     ),
 })
-
-
-
-
