@@ -11,3 +11,7 @@ dependencies = [
 
 [tool.uv.sources]
 supyx = { path = "../../supyx", editable = true }
+
+[tool.uv]
+# Releases must be seven days old before a lock may pick them.
+exclude-newer = "7 days"

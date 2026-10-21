@@ -7,7 +7,7 @@ setup: setup-server setup-client
 # Server setup
 setup-server:
 	@echo "Setting up Django server..."
-	cd server && uv sync
+	cd server && uv sync --locked
 	@if [ ! -f server/.env ]; then \
 		cp server/.env.example server/.env; \
 		echo "Created server/.env from .env.example - please update with your settings"; \
@@ -19,7 +19,7 @@ setup-server:
 # Client setup
 setup-client:
 	@echo "Setting up wxPython client..."
-	cd client && uv sync
+	cd client && uv sync --locked
 	@echo "Client setup complete!"
 
 # Run Django development server
