@@ -11,3 +11,7 @@ dependencies = [
     "psycopg2-binary>=2.9.10",
     "python-dotenv>=1.0.1",
 ]
+
+[tool.uv]
+# Releases must be seven days old before a lock may pick them.
+exclude-newer = "7 days"
